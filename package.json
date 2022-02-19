@@ -1,0 +1,24 @@
+{
+  "name": "svg-font-embedder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seflless/svg-font-embedder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/seflless/svg-font-embedder/issues"
+  },
+  "homepage": "https://github.com/seflless/svg-font-embedder#readme",
+  "dependencies": {
+    "datauri": "^4.1.0",
+    "fontkit": "^1.8.1"
+  }
+}
