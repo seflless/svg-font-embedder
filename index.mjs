@@ -1,15 +1,17 @@
-import fontkit from 'fontkit';
-import fs from 'fs';
-import DatauriParser from 'datauri/parser.js';
+import fontkit from "fontkit";
+import fs from "fs";
+import DatauriParser from "datauri/parser.js";
 
- 
 // open a font synchronously
-var font = fontkit.openSync('CaveatBrush-Regular.ttf');
- 
-// layout a string, using default shaping features.
-// returns a GlyphRun, describing glyphs and positions.
-var run = font.layout(dedupeCharacters(
-` (Scaled 2x) 
+var font = fontkit.openSync("CaveatBrush-Regular.ttf");
+
+// Layout a string, which returns a GlyphRun that includes
+// exactly which glyphs were needed to render the string.
+var run = font.layout(
+  dedupeCharacters(
+    // This list was manually extracted in this test. It would be instead
+    // extracted from the subset of text shapes being exported in a Tldraw document
+    ` (Scaled 2x) 
 Small Sized
 Medium Sized
 Large Sized
@@ -19,36 +21,43 @@ Workout
 Call Mom
 Sleep more 7+ hours
 Hello
-`));
- 
-// get an SVG path for a glyph
-var svg = run.glyphs[0].path.toSVG();
- 
-// create a font subset
+`
+  )
+);
+
+// Create a font subset that only includes the glyphs needed to render the string
 var subset = font.createSubset();
-run.glyphs.forEach(function(glyph) {
+run.glyphs.forEach(function (glyph) {
   subset.includeGlyph(glyph);
 });
- 
-const writeStream = fs.createWriteStream('subset.ttf')
-writeStream.addListener('close', () => {
-  const buffer = fs.readFileSync('./subset.ttf');
+
+// Write the subset to a new font file
+const writeStream = fs.createWriteStream("subset.ttf");
+
+// Once it's finished print out the data URI
+writeStream.addListener("close", () => {
+  //
+  const buffer = fs.readFileSync("./subset.ttf");
   const parser = new DatauriParser();
 
- const dataURI = parser.format('.ttf', buffer);
-//  console.log(`data:application/octet-stream;base64,${dataURI.base64}`);
-console.log(dataURI.content);
-})
+  const dataURI = parser.format(".ttf", buffer);
+  // This is the data URI that can be used in a CSS @font-face rule
+  console.log(`data:application/octet-stream;base64,${dataURI.base64}`);
+});
 
+subset.encodeStream().pipe(writeStream);
+
+/*
+ * Dedupe characters
+ * @param {string} characters - A string of characters
+ * @returns {string} - A string of unique characters
+ */
 function dedupeCharacters(characters) {
   const uniqueCharacters = new Set();
-  Array.from(characters).forEach(character => {
+  Array.from(characters).forEach((character) => {
     uniqueCharacters.add(character);
   });
-  const uniques = Array.from(uniqueCharacters).join('');
+  const uniques = Array.from(uniqueCharacters).join("");
   console.log(uniques);
   return uniques;
 }
-
-subset.encodeStream()
-      .pipe(writeStream);
